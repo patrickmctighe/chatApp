@@ -7,9 +7,9 @@ export default function RegisterAndLoginForm() {
   const [password, setPassword] = useState("");
   const [isLoginOrRegister, setIsLoginOrRegister] = useState("register");
 
-  const { setLoggedInUsername, setId } = useContext(UserContext);
+  const { setUsername: setLoggedInUsername, setId } = useContext(UserContext);
 
- useEffect(() => {
+  useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     const storedId = localStorage.getItem('id');
     if (storedUsername && storedId) {
@@ -31,12 +31,12 @@ export default function RegisterAndLoginForm() {
     localStorage.setItem('username', username);
     localStorage.setItem('id', data.id);
   }
-
   return (
     <div className="bg-blue-50 h-screen flex items-center">
       <form onSubmit={handleSubmit} className="w-64 mx-auto">
         <input
           value={username}
+          name="username"
           onChange={(ev) => setUsername(ev.target.value)}
           type="text"
           placeholder="username"
@@ -45,6 +45,7 @@ export default function RegisterAndLoginForm() {
 
         <input
           value={password}
+          name="password"
           onChange={(ev) => setPassword(ev.target.value)}
           type="password"
           placeholder="password"
