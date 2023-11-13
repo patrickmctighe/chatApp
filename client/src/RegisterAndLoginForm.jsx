@@ -5,31 +5,30 @@ import axios from "axios";
 export default function RegisterAndLoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoginOrRegister, setIsLoginOrRegister] = useState("register");
+  const [isLoginOrRegister, setIsLoginOrRegister] = useState("login");
 
-  const { setUsername: setLoggedInUsername, setId } = useContext(UserContext);
+  const { setUsername:setLoggedInUsername, setId } = useContext(UserContext);
 
-  useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
-    const storedId = localStorage.getItem('id');
-    if (storedUsername && storedId) {
-      setLoggedInUsername(storedUsername);
-      setId(storedId);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedUsername = localStorage.getItem('username');
+  //   const storedId = localStorage.getItem('id');
+  //   if (storedUsername && storedId) {
+  //     setLoggedInUsername(storedUsername);
+  //     setId(storedId);
+  //   }
+  // }, []);
 
   axios.defaults.withCredentials = true;
 
   async function handleSubmit(ev) {
     ev.preventDefault();
-    const url = isLoginOrRegister === "register" ? "/register" : "/login";
-    const response = await axios.post(url, { username, password }, {withCredentials: true});
-    const { data } = response;
+    const url = isLoginOrRegister === "register" ? "register" : "login";
+    const { data } = await axios.post(url,{username,password});
     setLoggedInUsername(username);
     setId(data.id);
     // Store the user's login state in local storage
-    localStorage.setItem('username', username);
-    localStorage.setItem('id', data.id);
+    // localStorage.setItem('username', username);
+    // localStorage.setItem('id', data.id);
   }
   return (
     <div className="bg-blue-50 h-screen flex items-center">

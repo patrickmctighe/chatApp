@@ -7,7 +7,7 @@ const cors = require("cors");
 const User = require("./models/User");
 const Message = require("./models/Message");
 const { create } = require("lodash");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const ws = require("ws");
 
 env.config();
@@ -26,41 +26,42 @@ app.use(
     credentials: true,
   })
 );
-
-async function getUserDataFromRequest(req){
-    return new Promise((resolve, reject) => {
-          if (token) {
-        jwt.verify(token, jwtSecret, {}, (err, userData) => {
-          if (err) throw err;
-     resolve(userData);
-        });
-      } else{
-            reject("no token")
-      }
-    })
-  
+async function getUserDataFromRequest(req) {
+  return new Promise((resolve, reject) => {
+    const token = req.cookies?.token;
+    if (token) {
+      jwt.verify(token, jwtSecret, {}, (err, userData) => {
+        if (err) throw err;
+        resolve(userData);
+      });
+    } else {
+      reject("no token");
+    }
+  });
 }
 
 app.get("/test", (req, res) => {
   res.json("test ok");
 });
 
-app.get("/messages/:useId", async (req, res) => {
-    const { userId } = req.params;
-const userData = await getUserDataFromRequest(req);
-const ourUserId = userData.userId;
-const messages = await Message.find({
-sender:{$in: [userId, ourUserId]},
-recipient: {$in: [userId, ourUserId]}
-}).sort({createdAt: -1}).limit(20).exec((err, messages) => {
-})
-res.json(messages)
+app.get("/messages/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const userData = await getUserDataFromRequest(req);
+  const ourUserId = userData.userId;
+  const messages = await Message.find({
+    sender: { $in: [userId, ourUserId] },
+    recipient: { $in: [userId, ourUserId] },
+  }).sort({ createdAt: 1 });
+  res.json(messages);
 });
 
+app.get("/people", async (req, res) => {
+  const users = await User.find({}, { _id: 1, username: 1 });
+  res.json(users);
+});
 
-
-app.get("/profile", async (req, res) => {
-  const token = req.cookies.token;
+app.get("/profile", (req, res) => {
+  const token = req.cookies?.token;
   if (token) {
     jwt.verify(token, jwtSecret, {}, (err, userData) => {
       if (err) throw err;
@@ -124,12 +125,42 @@ const server = app.listen(PORT);
 const wss = new ws.WebSocketServer({ server });
 
 wss.on("connection", (connection, req) => {
+  console.log("New WebSocket connection");
+  console.log("New WebSocket connection from", req.connection.remoteAddress);
+  function notifyAboutOnlinePeople() {
+    [...wss.clients].forEach((client) => {
+      client.send(
+        JSON.stringify({
+          online: [...wss.clients].map((c) => ({
+            userId: c.userId,
+            username: c.username,
+          })),
+        })
+      );
+    });
+  }
+
+  connection.isAlive = true;
+  connection.timer = setInterval(() => {
+    connection.ping();
+    connection.deathTimer = setTimeout(() => {
+      connection.isAlive = false;
+      connection.terminate();
+      notifyAboutOnlinePeople();
+      console.log("dead");
+    }, 1000);
+  }, 5000);
+
+  connection.on("pong", () => {
+    clearTimeout(connection.deathTimer);
+  });
+
   //decode token
   const cookies = req.headers.cookie;
   if (cookies) {
     const tokenCookieString = cookies
       .split(";")
-      .find((str) => str.trim().startsWith("token=")); 
+      .find((str) => str.trim().startsWith("token="));
     if (tokenCookieString) {
       const token = tokenCookieString.split("=")[1];
       if (token) {
@@ -161,13 +192,14 @@ wss.on("connection", (connection, req) => {
             JSON.stringify({
               text,
               sender: connection.userId,
-                recipient,
-              id: messageDoc._id,
+              recipient,
+              _id: messageDoc._id,
             })
           )
         );
     }
   });
+  notifyAboutOnlinePeople();
   // Send online users to all clients when a new client connects
   [...wss.clients].forEach((client) => {
     client.send(
@@ -179,4 +211,15 @@ wss.on("connection", (connection, req) => {
       })
     );
   });
+
+  connection.on("close", () => {
+    clearInterval(connection.timer); // Clear the interval when the connection is closed
+    clearTimeout(connection.deathTimer); // Clear the death timer when the connection is closed
+    notifyAboutOnlinePeople();
+    console.log("Connection closed");
+  });
+});
+
+wss.on("close", (data) => {
+  console.log("disconnect", data);
 });
