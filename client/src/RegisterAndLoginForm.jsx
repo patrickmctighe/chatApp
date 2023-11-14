@@ -31,8 +31,9 @@ export default function RegisterAndLoginForm() {
     // localStorage.setItem('id', data.id);
   }
   return (
-    <div className="bg-blue-50 h-screen flex items-center">
-      <form onSubmit={handleSubmit} className="w-64 mx-auto">
+    <div className="bg-violet-50 h-screen flex flex-col justify-center gap-10 items-center">
+           <img className="w-1/6 h-1/8" src="./public/chatr2.png" alt="" />
+      <form onSubmit={handleSubmit} className="w-64 flex flex-col items-center gap-2 mx-auto">
         <input
           value={username}
           name="username"
@@ -51,23 +52,23 @@ export default function RegisterAndLoginForm() {
           className="block rounded-sm md-2 p-2 border"
         />
 
-        <button type="submit" className="bg-blue-500 w-full text-white block rounded-sm p-2">
+        <button type="submit" className="bg-violet-200 w-1/2  text-grey-400 block rounded-sm p-2">
           {isLoginOrRegister === "register" ? "Register" : "Login"}
         </button>
-        <div className="text-center mt-2">
+        <div className="text-center   mt-2">
           {isLoginOrRegister === "register" && (
-            <div>
+            <div className="">
               Already a member?
-              <button onClick={() => setIsLoginOrRegister("login")} href="">
-                Login Here
+              <button className="ml-1" onClick={() => setIsLoginOrRegister("login")} href="">
+                <p className=" underline underline-offset-4 decoration-double">Login Here</p>
               </button> 
             </div>
           )}
           {isLoginOrRegister === "login" && (
-            <div>
+            <div className="flex gap-2"> 
               Not a member?
-              <button onClick={() => setIsLoginOrRegister("register")} href="">
-                Register
+              <button className="ml-1"onClick={() => setIsLoginOrRegister("register")} href="">
+               <p  className=" underline underline-offset-4 decoration-double"> Register</p>
               </button>
             </div>
           )}

@@ -3,7 +3,7 @@ import Logo from "./Logo";
 import Contact from "./Contact";
 import { useContext } from "react";
 import { UserContext } from "./UserContext";
-import { uniqBy, isEqual } from "lodash";
+import { uniqBy } from "lodash";
 import axios from "axios";
 
 export default function Chat() {
@@ -59,36 +59,56 @@ export default function Chat() {
     if ("online" in messageData) {
       showOnlinePeople(messageData.online);
     } else if ("text" in messageData) {
-      setMessages((prev) => [...prev, { ...messageData }]);
+      if (messageData.sender === selectedUserId) {
+        setMessages((prev) => [...prev, { ...messageData }]);
+      }
     }
   }
 
-  function sendMessage(ev) {
-    ev.preventDefault();
+  function sendMessage(ev, file = null) {
+    if (ev) ev.preventDefault();
     ws.send(
       JSON.stringify({
         recipient: selectedUserId,
         text: newMessageText,
+        file,
       })
     );
-    setNewMessageText("");
-    setMessages((prev) => [
-      ...prev,
-      {
-        text: newMessageText,
-        sender: id,
-        recipient: selectedUserId,
-        _id: Date.now(),
-      },
-    ]);
+    if (file) {
+      axios.get("/messages/" + selectedUserId).then((res) => {
+        setMessages(res.data);
+      });
+    } else {
+      setNewMessageText("");
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: newMessageText,
+          sender: id,
+          recipient: selectedUserId,
+          _id: Date.now(),
+        },
+      ]);
+    }
   }
 
   function logOut() {
     axios.post("/logout").then((res) => {
       console.log("res:", res);
+      setWs(null);
       setUsername(null);
       setId(null);
     });
+  }
+  function sendFile(ev) {
+    const reader = new FileReader();
+    reader.readAsDataURL(ev.target.files[0]);
+    reader.onload = () => {
+      sendMessage(null, {
+        name: ev.target.files[0].name,
+        data: reader.result,
+      });
+    };
   }
 
   useEffect(() => {
@@ -156,7 +176,7 @@ export default function Chat() {
 
   return (
     <div className="flex h-screen">
-      <div className="bg-white w-1/3 flex flex-col">
+      <div className="bg-violet-50 w-1/3 flex flex-col">
         <div className="flex-grow">
           {" "}
           <Logo />
@@ -182,13 +202,18 @@ export default function Chat() {
           ))}
         </div>
 
-        <div className="p-2 text-center"> 
-        <button
-        onClick={logOut}
-         className="text-sm text-gray-400 bg-blue-50 py-1 px-2 rounded-sm">Log Out</button>
+        <div className="p-2 text-center border-t-2 border-violet-100 flex gap-3 items-center justify-center">
+          <span className="flex gap-2"><p className="underline underline-offset-4 decoration-wavy decoration-1 ">Current User</p>:{username}</span>
+          <button
+            onClick={logOut}
+            className="text-sm text-gray-800 bg-violet-300 py-1 px-2 rounded-sm"
+          >
+            {" "}
+            Log Out
+          </button>
         </div>
       </div>
-      <div className="flex flex-col bg-blue-50  w-2/3 p-2">
+      <div className="flex flex-col bg-purple-100  w-2/3 p-2">
         <div className="flex-grow">
           {!selectedUserId && (
             <div className="flex items-center h-full justify-center">
@@ -208,11 +233,22 @@ export default function Chat() {
                   className={
                     " text-left inline-block p-2 m-2 rounded-md text-sm " +
                     (message.sender == id
-                      ? "bg-blue-500 text-white"
-                      : "bg-white text-gray-500")
+                      ? "bg-violet-800 text-white border-2 border-gray-400"
+                      : "bg-violet-200 text-gray-800 border-2 border-violet-300")
                   }
                 >
                   {message.text}
+                  {message.file && (
+                    <div>
+                      <a
+                        href={
+                            `http://localhost:4040/uploads/${message.file}`
+                        }
+                      >
+                        {message.file}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -229,9 +265,26 @@ export default function Chat() {
               placeholder="type your message here"
               className="bg-white flex-grow border p-2 rounded-sm"
             />
+            <label className="bg-purple-300 p-2 text-gry-600 rounded-full cursor-pointer">
+              <input type="file" className="hidden" onChange={sendFile} />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
+                />
+              </svg>
+            </label>
             <button
               type="submit"
-              className="bg-blue-500 text-white p-2 rounded-sm"
+              className="bg-violet-500 text-white p-2 rounded-full"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

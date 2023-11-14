@@ -6,7 +6,7 @@ return(
     onClick={() => onClick(id)}
     className={
       "border-b border-gray-100 flex items-center gap-2 cursor-pointer " +
-      (selected ? "bg-blue-50" : "")
+      (selected ? "bg-purple-100 border-t-2 border-purple-200" : "")
     }
   >
     {selected && (
