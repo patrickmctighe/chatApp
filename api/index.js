@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://warm-bienenstitch-c15fe2.netlify.app/", 
+    origin: "https://warm-bienenstitch-c15fe2.netlify.app", 
     credentials: true,
   })
 );
