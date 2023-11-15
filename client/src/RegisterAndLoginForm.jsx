@@ -66,7 +66,7 @@ export default function RegisterAndLoginForm() {
           )}
           {isLoginOrRegister === "login" && (
             <div className="flex gap-2"> 
-              Not a member??
+              Not a member?
               <button className="ml-1"onClick={() => setIsLoginOrRegister("register")} href="">
                <p  className=" underline underline-offset-4 decoration-double"> Register</p>
               </button>
