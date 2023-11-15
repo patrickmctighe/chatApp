@@ -17,7 +17,7 @@ export default function Chat() {
   const [offlinePeople, setOfflinePeople] = useState({});
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:4040");
+    const ws = new WebSocket("https://chatappapi-zxto.onrender.com/");
     setWs(ws);
     ws.addEventListener("message", handleMessage);
 
@@ -242,7 +242,7 @@ export default function Chat() {
                     <div>
                       <a
                         href={
-                            `http://localhost:4040/uploads/${message.file}`
+                            `https://chatappapi-zxto.onrender.com/uploads/${message.file}`
                         }
                       >
                         {message.file}
