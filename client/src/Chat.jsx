@@ -17,34 +17,27 @@ export default function Chat() {
   const [offlinePeople, setOfflinePeople] = useState({});
 
   useEffect(() => {
-    const ws = new WebSocket("wss://chatappapi-zxto.onrender.com/");
-    setWs(ws);
-    ws.addEventListener("message", handleMessage);
-
-    ws.addEventListener("close", () => {
-      console.log("Disconnected.");
-    });
-
-    ws.addEventListener("error", (error) => {
-      console.error("WebSocket error:", error);
-    });
-
+    const connectToWs = () => {
+      const ws = new WebSocket("wss://chatappapi-zxto.onrender.com/");
+      setWs(ws);
+      ws.addEventListener("message", handleMessage);
+      ws.addEventListener("close", () => {
+        console.log("Disconnected. Trying to reconnect.");
+        setTimeout(connectToWs, 1000);
+      });
+      ws.addEventListener("error", (error) => {
+        console.error("WebSocket error:", error);
+      });
+    };
+  
+    connectToWs();
+  
     return () => {
       ws.removeEventListener("message", handleMessage);
       ws.close();
     };
   }, [selectedUserId]);
-  function connectToWs() {
-    const ws = new WebSocket("wss://chatappapi-zxto.onrender.com/");
-    setWs(ws);
-    ws.addEventListener("message", handleMessage);
-    ws.addEventListener("close", () => {
-      setTimeout(() => {
-        console.log("Disconnected. Trying to reconnect.");
-        connectToWs();
-      }, 1000);
-    });
-  }
+  
   function showOnlinePeople(peopleArray) {
     const people = {};
     peopleArray.forEach(({ userId, username }) => {
@@ -154,16 +147,6 @@ export default function Chat() {
       });
   }, []);
 
-  useEffect(() => {
-    connectToWs();
-
-    return () => {
-      // Cleanup WebSocket connection when component unmounts
-      if (ws) {
-        ws.close();
-      }
-    };
-  }, [selectedUserId]);
 
   const onlinePeopleExclOurUser = { ...onlinePeople };
   delete onlinePeopleExclOurUser[id];
