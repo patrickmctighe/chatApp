@@ -17,7 +17,7 @@ export default function Chat() {
   const [offlinePeople, setOfflinePeople] = useState({});
 
   useEffect(() => {
-    const ws = new WebSocket("ws://chatappapi-zxto.onrender.com/");
+    const ws = new WebSocket("wss://chatappapi-zxto.onrender.com/");
     setWs(ws);
     ws.addEventListener("message", handleMessage);
 
