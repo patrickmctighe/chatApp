@@ -32,7 +32,7 @@ export default function RegisterAndLoginForm() {
   }
   return (
     <div className="bg-violet-50 h-screen flex flex-col justify-center gap-10 items-center">
-           <img className="w-1/6 h-1/8" src="./public/chatr2.png" alt="" />
+           <img className="w-1/6 h-1/8" src="/chatr2.png" alt="" />
       <form onSubmit={handleSubmit} className="w-64 flex flex-col items-center gap-2 mx-auto">
         <input
           value={username}
