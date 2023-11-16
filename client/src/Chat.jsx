@@ -248,7 +248,7 @@ export default function Chat() {
                     <div>
                       <a
                         href={
-                            `wss://chatappapi-kks8.onrender.com/uploads/${message.file}`
+                            `https://chatappapi-kks8.onrender.com/uploads/${message.file}`
                         }
                       >
                         {message.file}
