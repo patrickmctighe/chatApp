@@ -22,13 +22,18 @@ export default function RegisterAndLoginForm() {
 
   async function handleSubmit(ev) {
     ev.preventDefault();
-    const url = isLoginOrRegister === "register" ? "register" : "login";
-    const { data } = await axios.post(url,{username,password});
-    setLoggedInUsername(username);
-    setId(data.id);
-    // Store the user's login state in local storage
-    // localStorage.setItem('username', username);
-    // localStorage.setItem('id', data.id);
+    try {
+      const url = isLoginOrRegister === "register" ? "register" : "login";
+      const { data } = await axios.post(url,{username,password});
+      setLoggedInUsername(username);
+      setId(data.id);
+      // Store the user's login state in local storage
+      // localStorage.setItem('username', username);
+      // localStorage.setItem('id', data.id);
+    } catch (error) {
+      console.error('Error during login or registration:', error);
+      // Handle error...
+    }
   }
   return (
     <div className="bg-violet-50 h-screen flex flex-col justify-center gap-10 items-center">
