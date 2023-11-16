@@ -124,7 +124,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-const PORT = 4040;
+const PORT = 443;
 
 const server = app.listen(PORT);
 

@@ -18,7 +18,7 @@ export default function Chat() {
 
   useEffect(() => {
     const connectToWs = () => {
-      const ws = new WebSocket("wss://chatappapi-zxto.onrender.com/");
+      const ws = new WebSocket("wss://chatappapi-kks8.onrender.com/");
       setWs(ws);
       ws.addEventListener("message", handleMessage);
       ws.addEventListener("close", () => {
@@ -37,7 +37,7 @@ export default function Chat() {
       ws.close();
     };
   }, [selectedUserId]);
-  
+
   function showOnlinePeople(peopleArray) {
     const people = {};
     peopleArray.forEach(({ userId, username }) => {
@@ -225,7 +225,7 @@ export default function Chat() {
                     <div>
                       <a
                         href={
-                            `https://chatappapi-zxto.onrender.com/uploads/${message.file}`
+                            `https://chatappapi-kks8.onrender.com/uploads/${message.file}`
                         }
                       >
                         {message.file}
