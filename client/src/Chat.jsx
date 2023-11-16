@@ -105,7 +105,7 @@ export default function Chat() {
       });
   }
 
-  
+
   function sendFile(ev) {
     const reader = new FileReader();
     reader.readAsDataURL(ev.target.files[0]);
@@ -248,7 +248,7 @@ export default function Chat() {
                     <div>
                       <a
                         href={
-                            `https://chatappapi-zxto.onrender.com/uploads/${message.file}`
+                            `https://chatappapi-kks8.onrender.com/uploads/${message.file}`
                         }
                       >
                         {message.file}
